@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Knowledge Tree - Login</title>
+    <!--<link rel="stylesheet" src="webUITree/loginJquery.css" />-->
+    <style>
+        form {
+            border: 3px solid #f1f1f1;
+            width: 60%;
+        }
+        
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .container {
+            padding: 16px;
+        }
+        
+        span.psw {
+            float: right;
+            padding-top: 16px;
+        }
+        /* Change styles for span and cancel button on extra small screens */
+        
+        @media screen and (max-width: 300px) {
+            span.psw {
+                display: block;
+                float: none;
+            }
+            .cancelbtn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!--<script type="text/javascript">
+        var userip;
+    </script>-->
+    <!--    <script type="text/javascript" src="https://l2.io/ip.js?var=userip"></script>-->
+    <!--<script src="https://d3js.org/d3.v3.min.js"></script>-->
+    <script src="webUITree/d3.v3.min.js"></script>
+    <script src="webUITree/jquery.js"></script>
+    <form>
+        <script type="text/javascript" src="webUITree/jquery.js"></script>
+        <div class="container">
+            <label><b>Username</b></label>
+            <input type="text" id="uname" placeholder="Enter Username" name="uname" required>
+            <br>
+            <label><b>Password</b></label>
+            <input type="password" id="psw" placeholder="Enter Password" name="psw" required>
+            <br>
+            <!--<input type="checkbox" id="orientation" name="orientation" checked="checked"> Display/Landscape (uncheck for Display/Portrait)-->
+            <!--<input type="checkbox" id="displayWorkTree" name="displayWorkTree"> Display Work Tree (uncheck for Display Subject Tree)-->
+        </div>
+        <input type="button" id="btnQueryString" value="Login" />
+        <!-- not a submit button with action at a server. Parameters are to be passed to next form in a function below  -->
+        <script>
+            // set Login click as action when enter key pressed
+            $(document).keypress(function(e) {
+                var key = e.which;
+                if (key == 13) // the enter key code
+                {
+                    $('input[id = btnQueryString]').click();
+                    return false;
+                }
+            });
+        </script>
+        <script type="text/javascript">
+            "use strict";
+            $(function() {
+                $("#btnQueryString").bind("click", function() {
+                    var cipher = "";
+                    var text = encodeURIComponent($("#psw").val());
+                    var shift = 10;
+                    for (var i = 0; i < text.length; i++) {
+                        var c = text.charCodeAt(i);
+                        if (c >= 65 && c <= 90) cipher += String.fromCharCode((c - 65 + shift) % 26 + 65); // Uppercase
+                        else if (c >= 97 && c <= 122) cipher += String.fromCharCode((c - 97 + shift) % 26 + 97); // Lowercase
+                        else cipher += text.charAt(i); // Copy
+                    }
+
+                    var nam = encodeURIComponent($("#uname").val());
+                    // var orientation = encodeURIComponent($("#orientation").val());
+                    var landingpage = "webUITree/index.html";
+                    // if (document.getElementById('displayWorkTree').checked) landingpage = "webUITree/index_work.html";
+                    var url = landingpage + "?name=" + nam + "&psw=" + cipher + "&userip=127.0.0.1";
+                    window.location.href = url; // local
+                    // d3.csv("restServiceUrl.csv", function(content) {
+                    //     var url = landingpage + "?name=" + nam + "&psw=" + cipher + "&userip=" + content[0]["IpAddress"]; // + "&orientation=" + orientation;
+                    //     window.location.href = url; // remote
+                    // });
+                });
+            });
+        </script>
+        <br />
+        <br />
+    </form>
+</body>
+
+</html>

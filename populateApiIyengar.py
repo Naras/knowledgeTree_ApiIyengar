@@ -13,30 +13,12 @@ prefix = 'http://api.iyengarlabs.org/v1/'
 # own modules
 import knowledgeTreeModelSmall as ktm
 
-def find_item_json_dict_list(lst,key,value):
-    for dic in lst:
-        # print dic, type(dic)
-        if dic[key] == value: return dic
-    return None
 def entity_json_dict_list(rows):
-    rowsJson = []
+    rowsDictList = []
     for row in rows:
         db_flds = row.__dict__['__data__']  # get all the db field names/values .. a dictionary
-        jsonElement = '{'
-        for fld_name,fld_value in db_flds.items():
-            if not fld_value is None:
-                # print ('name:'+fld_name + ' value:'+fld_value)
-                withoutCRLF = str(fld_value).replace('\r\n','')
-                withoutCRLF = withoutCRLF.replace('\n','')
-                withoutCRLF = withoutCRLF.replace("'", r'\"')
-                # if fld_name == 'description':
-                #     logging.debug(auth.username() + withoutCRLF)
-                jsonElement += "'" + fld_name + "':'" + withoutCRLF + "',"  # escape /r/n
-        elem = jsonElement[:-1] + '}'
-        # elem = ast.literal_eval(jsonElement2)
-        # print elem
-        rowsJson.append(ast.literal_eval(elem))
-    return rowsJson
+        rowsDictList.append(db_flds)
+    return rowsDictList
 def addChild_Subject(node_id, rel, title, description='-NA-'):
     relations = {'adhaara': 'ADHAARA_ADHAARI', 'Anga': 'ANGA_ANGI', 'Anonya': 'ANONYA_ASHRAYA',
                  'Ashraya': 'ASHRAYA_ASHREYI', 'Avayavi': 'AVAYAVI', 'darshana': 'DARSHANA',
@@ -50,18 +32,9 @@ def addChild_Subject(node_id, rel, title, description='-NA-'):
                              headers={'parentid': node_id, "relation": relations[rel]})
     if response.status_code in [200, 201]:
         responseAsDict = json.loads(response.text)
-        # created_id_child = responseAsDict['subject']['_id']
-        logging.debug('added apiIyengar node:', responseAsDict)
-        # self.assertIn('title', responseAsDict['subject'])
-        # self.assertEqual(title, responseAsDict['subject']['title'])
-        # self.assertIn('description', responseAsDict['subject'])
-        # self.assertEqual(description, responseAsDict['subject']['description'])
-        # self.assertIn('id', responseAsDict['subject']['subject_parents'][0])
-        # self.assertEqual(node_id, responseAsDict['subject']['subject_parents'][0]['id'])
-        # response = requests.get(prefix + 'subject/' + node_id)
-        # self.assertIn(response.status_code, [200, 201])
+        logging.debug('added apiIyengar node: name %s id: %s', title, responseAsDict['subject']['_id'])
     else:
-        logging.debug('failed to add apiIyengar under node(subject):' + node_id + ' child:' + title + ' status:' + str(response.status_code))
+        logging.debug('failed to add apiIyengar under node(subject):%s child: %s status: %i', node_id, title, response.status_code)
         raise ConnectionError('post status:' + str(response.status_code))
     return responseAsDict
 def addChild_Work(node_id, rel, title, langcode="Sanskrit", scriptcode="Devanagari", body = '-NA-', hyperlink=''):
@@ -81,119 +54,98 @@ def addChild_Work(node_id, rel, title, langcode="Sanskrit", scriptcode="Devanaga
                              headers={'parentid': node_id, "relation": relations[rel]})
     if response.status_code in [200, 201]:
         responseAsDict = json.loads(response.text)
-        created_id_child = responseAsDict['work']['_id']
-        logging.debug('added apiIyengar node(work):', responseAsDict)
-        # self.assertIn('title', responseAsDict['work'])
-        # self.assertEqual('child-' + node['title'], responseAsDict['work']['title'])
-        # self.assertIn('components', responseAsDict['work'])
-        # self.assertEqual([{"type": 'TEXT', "langcode": "Sanskrit", "scriptcode": "Devanagari",
-        #                    "body": "blah witter drone this is the greatest long work since the moon landing",
-        #                    "hyperlink": "https://en.wikipedia.org/wiki/Nakshatra"}], responseAsDict['work']['components'])
-        # self.assertIn('id', responseAsDict['work']['work_parents'][0])
-        # self.assertEqual(node['_id'], responseAsDict['work']['work_parents'][0]['id'])
-        # response = requests.get(prefix + 'work/' + node['_id'])
-        # self.assertIn(response.status_code, [200, 201])
-        # responseAsDict = json.loads(response.text)
-        # print('node after:', responseAsDict)
+        logging.debug('added apiIyengar node: name %s id: %s', title, responseAsDict['subject']['_id'])
     else:
-        logging.debug('failed to add apiIyengar under node(work):' + node_id + ' child:' + title + ' status:' + str(response.status_code))
+        logging.debug('failed to add apiIyengar under node(subject):%s child: %s status: %i', node_id, title, response.status_code)
         raise ConnectionError('post status:' + str(response.status_code))
     return responseAsDict
+def subject_refreshGraph(nodes, edges):
+    g = nx.DiGraph()
+    for row in nodes:
+        g.add_node(row['id'])
+        g.nodes[row['id']]['name'] = row['name']
+        if 'description' in row: g.nodes[row['id']]['description'] = row['description']
+    for row in edges:
+        g.add_edge(row['subject1'],row['subject2'])
+        g[row['subject1']][row['subject2']]['relation'] = row['relation']
+        # if 'sortorder' in row: g[row['subject1']][row['subject2']]['sortorder'] = row['sortorder']
+    return g
+def work_refreshGraph(nodes, edges):
+    g = nx.DiGraph()
+    for row in nodes:
+        g.add_node(row['id'])
+        g.nodes[row['id']]['name'] = row['name']
+        if 'components' in row: g.nodes[row['id']]['components'] = row['components']
+    for row in edges:
+        g.add_edge(row['work1'],row['work2'])
+        g[row['work1']][row['work2']]['relation'] = row['relation']
+    return g
+def subjects_Navigate(g, edges, subjectsDictList, parent_pred_pair, parent):
+    for child, rel in edges.items():
+        try:
+            child_properties = [entry for entry in subjectsDictList if entry['id'] == child][0]
+            if parent in parent_pred_pair:
+                pred = parent_pred_pair[parent]
+                if 'description' not in child_properties: child_properties['description'] = '-NA-'
+                pred = addChild_Subject(pred, rel['relation'], child_properties['name'], child_properties['description'])
+                parent_pred_pair[child] = pred['subject']['_id']
+                if len(g[child]) > 0:
+                    nodes_sofar = subjects_Navigate(g, g[child], subjectsDictList, parent_pred_pair, child)
+            else: raise IndexError(parent +' not found in ' + parent_pred_pair)
+        except ConnectionError as ce:
+            print(ce)
+        except Exception as e:
+            print(e)
+def works_Navigate(g, edges, worksDictList, parent_pred_pair, parent):
+    for child, rel in edges.items():
+        try:
+            child_properties = [entry for entry in worksDictList if entry['id'] == child][0]
+            if parent in parent_pred_pair:
+                pred = parent_pred_pair[parent]
+                if 'components' not in child_properties: child_properties['components'] = '-NA-'
+                pred = addChild_Work(pred, rel['relation'], child_properties['name'], child_properties['components'])
+                parent_pred_pair[child] = pred['subject']['_id']
+                if len(g[child]) > 0:
+                    works_Navigate(g, g[child], worksDictList, parent_pred_pair, child)
+            else: raise IndexError(parent +' not found in ' + parent_pred_pair)
+        except ConnectionError as ce:
+            print(ce)
+        except Exception as e:
+            print(e)
 
-logging.basicConfig(filename='populateApiIyengarJournal.log',format='%(asctime)s %(message)s',level=logging.DEBUG)
+def main():
+    logging.basicConfig(filename='populateApiIyengarJournal.log',format='%(asctime)s %(message)s',level=logging.DEBUG)
 
-app = Flask(__name__)
-
-db = ktm.database
-db.create_tables([ktm.Subject, ktm.SubjectSubjectRelation, ktm.SubjectRelatestoSubject, \
-                  ktm.Work, ktm.WorkWorkRelation, ktm.WorkRelatestoWork, \
-                  ktm.SubjectHasWork, ktm.WorkSubjectRelation], safe=True)
-logging.debug('Opened knowledgeTree Tables - Subject, SubjectSubjectRelation, Subject-Relates-to-Subject, Work, WorkWorkRelation Work_Relatesto_Work, SubjectHasWork % WorkSubjectRelation')
+    db = ktm.database
+    db.create_tables([ktm.Subject, ktm.SubjectSubjectRelation, ktm.SubjectRelatestoSubject, \
+                      ktm.Work, ktm.WorkWorkRelation, ktm.WorkRelatestoWork, \
+                      ktm.SubjectHasWork, ktm.WorkSubjectRelation], safe=True)
+    logging.debug('Opened knowledgeTree Tables - Subject, SubjectSubjectRelation, Subject-Relates-to-Subject, Work, WorkWorkRelation Work_Relatesto_Work, SubjectHasWork % WorkSubjectRelation')
 
 
-# subject related entities
-ssr = ktm.SubjectSubjectRelation.select()
-ssrJson = entity_json_dict_list(ssr)
-srs = ktm.SubjectRelatestoSubject.select()
-srsJson = entity_json_dict_list(srs)
-subjects = ktm.Subject.select()
-subjectsJson = entity_json_dict_list(subjects)
+    # subject related entities
+    srs = ktm.SubjectRelatestoSubject.select()
+    srsDictList = entity_json_dict_list(srs)
+    subjects = ktm.Subject.select()
+    subjectsDictList = entity_json_dict_list(subjects)
 
-# work related entities
-wwr = ktm.WorkWorkRelation.select()
-wwrJson = entity_json_dict_list(wwr)
-wrw = ktm.WorkRelatestoWork.select()
-wrwJson = entity_json_dict_list(wrw)
-works = ktm.Work.select()
-worksJson = entity_json_dict_list(works)
+    # work related entities
+    wrw = ktm.WorkRelatestoWork.select()
+    wrwDictList = entity_json_dict_list(wrw)
+    works = ktm.Work.select()
+    worksDictList = entity_json_dict_list(works)
 
-# subject-work cross related entities
-wsr = ktm.WorkSubjectRelation.select()
-wsrJson = entity_json_dict_list(wsr)
-shw = ktm.SubjectHasWork.select()
-shwJson= entity_json_dict_list(shw)
+    # logging.debug('populated Subject, Work, Person  and related in-memory tables')
 
-# person related entities
-ppr = ktm.PersonPersonRelation.select()
-pprJson = entity_json_dict_list(ppr)
-prp = ktm.PersonRelatestoPerson.select()
-prpJson = entity_json_dict_list(prp)
-persons = ktm.Person.select()
-personsJson = entity_json_dict_list(persons)
-
-# person-work cross related entities
-pwr = ktm.PersonWorkRelation.select()
-pwrJson = entity_json_dict_list(pwr)
-phw = ktm.PersonHasWork.select()
-phwJson= entity_json_dict_list(phw)
-
-# logging.debug('populated Subject, Work, Person  and related in-memory tables')
-
-# print(gs.nodes)
-# print(gs.nodes(data=True)['aum'])
-parent_pred_pair = {'all':'1001'}
-for srsEntry in srsJson:
-    parent, child = srsEntry['subject1'], srsEntry['subject2'] #nx.predecessor(gs, node, cutoff=1)
-    try:
-        child_properties = [entry for entry in subjectsJson if entry['id'] == child][0]  # eq. sql select from subjects where subject2=id
-        if parent in parent_pred_pair.keys():
-            pred = parent_pred_pair[parent]
-        else:
-            parent, pred = 'all', '1001'
-        if 'description' in child_properties:
-            print(pred, '->', child_properties['name'], child_properties['description'], srsEntry['relation'])
-            pred = addChild_Subject(pred, srsEntry['relation'], child_properties['name'], child_properties['description'])
-        else:
-            print(pred, '->', child_properties['name'], '-NA-', srsEntry['relation'])
-            pred = addChild_Subject(pred, srsEntry['relation'], child_properties['name'])
-        parent_pred_pair[child] = pred['subject']['_id']
-    except ConnectionError as ce:
-        print(ce)
-    except Exception as e:
-        print(e)
-
-parent_pred_pair = {'all':'1001'}
-for wrwEntry in wrwJson:
-    parent, child = wrwEntry['work1'], wrwEntry['work2']
-    try:
-        child_properties = [entry for entry in worksJson if entry['id'] == child][0]
-        # print('pair:%s\nchild:%s properties:%s'%(parent_pred_pair,child,child_properties))
-        if parent in parent_pred_pair.keys():
-            pred = parent_pred_pair[parent]
-        else:
-            parent, pred = 'all', '1001'
-        if 'description' in child_properties:
-            print(pred, '->', child_properties['name'], child_properties['description'], wrwEntry['relation'])
-            pred = addChild_Work(pred, wrwEntry['relation'], child_properties['name'], body=child_properties['description'])
-        else:
-            print(pred, '->', child_properties['name'], '-NA-', wrwEntry['relation'])
-            pred = addChild_Work(pred, wrwEntry['relation'], child_properties['name'])
-        parent_pred_pair[child] = pred['work']['_id']
-    except ConnectionError as ce:
-        print(ce)
-    except Exception as e:
-        print(e)
+    gs = subject_refreshGraph(subjectsDictList, srsDictList)
+    parent = 'aum'
+    parent_pred_pair = {'aum':'1001'}
+    subjects_Navigate(gs, gs['aum'], subjectsDictList, parent_pred_pair, parent)
+    gw = work_refreshGraph(worksDictList, wrwDictList)
+    parent = 'all'
+    parent_pred_pair = {'all':'1001'}
+    works_Navigate(gw, gw['all'], worksDictList, parent_pred_pair, parent)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()

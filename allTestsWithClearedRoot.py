@@ -18,120 +18,9 @@ import random
 prefix = 'http://api.iyengarlabs.org/v1/'
 addToLeaf, addToRoot, nodelete = False, False, False
 
-class TestSubject(unittest.TestCase):
+class TestSubjectAndWork(unittest.TestCase):
     """Subject unit test stubs"""
 
-    def setUp(self):
-        pass
-    def tearDown(self):
-        pass
-    # def testSubject(self):
-    #     # model = swagger_client.models.subject.Subject()  # noqa: E501
-    #     response = requests.get(prefix + 'rootsubject')
-    #     self.assertEqual(200, response.status_code)
-    #     responseAsDict = json.loads(response.text)
-    #     # print(responseAsDict)
-    #     self.assertIn('subject', responseAsDict)
-    #     self.assertIn('title', responseAsDict['subject'])
-    #     self.assertEqual('OM', responseAsDict['subject']['title'])
-    #     self.assertIn('description', responseAsDict['subject'])
-    #     self.assertEqual('Origin of everything', responseAsDict['subject']['description'])
-    #     # self.assertIn('subject_relations', responseAsDict['subject'])
-    #     if 'subject_relations' in responseAsDict['subject']:
-    #         subject_relations = responseAsDict['subject']['subject_relations']
-    #         for entry in subject_relations:
-    #             self.assertIn(entry['subjecttype'],
-    #                           ['ADHAARA_ADHAARI', 'ANGA_ANGI', 'ANONYA_ASHRAYA', 'ASHRAYA_ASHREYI', 'AVAYAVI', 'DARSHANA', 'DHARMA_DHARMI', 'JANYA_JANAKA',
-    #                            'KAARYA_KAARANA', 'NIRUPYA_NIRUPAKA', 'ANGA', 'PRAKAARA_PRAKAARI', 'COMMON_PARENT', 'UDDHESHYA_VIDHEYA', 'UPAVEDA',
-    #                            'UPABRAHMYA_UPABRAHMANA', 'UPANISHAD', 'VISHAYA_VISHAYI'])
-    #             newReqUrl = entry['_links']['self']['href']
-    #             # print(newReqUrl)
-    #             if str(newReqUrl).startswith('/v1'): newReqUrl = prefix + newReqUrl
-    #             # print(newReqUrl)
-    #             response = requests.get(newReqUrl)
-    #             # self.assertEqual(200, response.status_code)
-    #             if response.status_code == 200:
-    #                 responseAsDict = json.loads(response.text)
-    #                 # print(responseAsDict)
-    #                 self.assertIn('title',responseAsDict['subject'])
-    #                 self.assertIn('subject_parents',responseAsDict['subject'])
-    #                 self.assertEqual('1001',responseAsDict['subject']['subject_parents'][0]['id'])
-    # def testAddModifyRemove(self):
-    #     response = requests.post(prefix + 'subject/add',
-    #                              json={'title': 'name-test','description': 'description-test'},
-    #                              headers={'parentid': '1001',"relation":'JANYA_JANAKA'})
-    #     self.assertIn(response.status_code, [200,201])
-    #     # print(response.text)
-    #     if response.status_code in [200,201]:
-    #         responseAsDict = json.loads(response.text)
-    #         # print(responseAsDict)
-    #         self.assertIn('title',responseAsDict['subject'])
-    #         self.assertEqual('name-test',responseAsDict['subject']['title'])
-    #         self.assertIn('description',responseAsDict['subject'])
-    #         self.assertEqual('description-test',responseAsDict['subject']['description'])
-    #         created_id = responseAsDict['subject']['_id']
-    #         response = requests.patch(prefix + 'subject/update/' + created_id ,
-    #                                  json={'title': 'name-test-updated', 'description': 'description-test-updated'})
-    #         # print('code %i text %s'%(response.status_code, response.text))
-    #         self.assertIn(response.status_code, [200, 201])
-    #         responseAsDict = json.loads(response.text)
-    #         self.assertEqual('name-test-updated', responseAsDict['subject']['title'])
-    #         self.assertEqual('description-test-updated',responseAsDict['subject']['description'])
-    #         response = requests.delete(prefix + 'subject/remove/' + created_id + '?deletesubtree=false')
-    #         self.assertIn(response.status_code, [200,201])
-    #         self.assertEqual('"OK"', response.text)
-    # def testAddModifyRemoveChild(self):
-    #     relations = ['ADHAARA_ADHAARI', 'ANGA_ANGI', 'ANONYA_ASHRAYA', 'ASHRAYA_ASHREYI', 'AVAYAVI', 'DARSHANA',
-    #                  'DHARMA_DHARMI', 'JANYA_JANAKA', 'KAARYA_KAARANA', 'NIRUPYA_NIRUPAKA', 'ANGA', 'PRAKAARA_PRAKAARI', 'COMMON_PARENT',
-    #                  'UDDHESHYA_VIDHEYA', 'UPAVEDA','UPABRAHMYA_UPABRAHMANA', 'UPANISHAD', 'VISHAYA_VISHAYI']
-    #     rel = random.choice(relations)
-    #     response = requests.post(prefix + 'subject/add',
-    #                              json={'title': 'name-test','description': 'description-test'},
-    #                              headers={'parentid': '1001',"relation":rel})
-    #     self.assertIn(response.status_code, [200, 201])
-    #     responseAsDict = json.loads(response.text)
-    #     created_id_parent = responseAsDict['subject']['_id']
-    #     # print('Parent:', created_id_parent)
-    #     rel = random.choice(relations)
-    #     response = requests.post(prefix + 'subject/add',
-    #                              json={'title': 'child-of-' + created_id_parent, 'description': 'description-child-of-' + created_id_parent},
-    #                              headers={'parentid': created_id_parent, "relation":rel})
-    #     self.assertIn(response.status_code, [200, 201])
-    #     responseAsDict = json.loads(response.text)
-    #     created_id_child = responseAsDict['subject']['_id']
-    #     # print('child:',responseAsDict)
-    #     self.assertIn('title', responseAsDict['subject'])
-    #     self.assertEqual('child-of-' + created_id_parent, responseAsDict['subject']['title'])
-    #     self.assertIn('description', responseAsDict['subject'])
-    #     self.assertEqual('description-child-of-' + created_id_parent, responseAsDict['subject']['description'])
-    #     self.assertIn('id', responseAsDict['subject']['subject_parents'][0])
-    #     self.assertEqual(created_id_parent, responseAsDict['subject']['subject_parents'][0]['id'])
-    #     response = requests.get(prefix + 'subject/' + created_id_parent)
-    #     self.assertIn(response.status_code, [200, 201])
-    #     responseAsDict = json.loads(response.text)
-    #     # print('node after:', responseAsDict)
-    #     self.assertIn('subjecttype',responseAsDict['subject']['subject_relations'][0])
-    #     self.assertIn(responseAsDict['subject']['subject_relations'][0]['subjecttype'], relations)
-    #     self.assertIn('id',responseAsDict['subject']['subject_relations'][0])
-    #     self.assertEqual(created_id_child, responseAsDict['subject']['subject_relations'][0]['id'])
-    #     response = requests.delete(prefix + 'subject/remove/' + created_id_parent + '?deletesubtree=true')
-    #     self.assertIn(response.status_code, [200, 201])
-    #     self.assertEqual('"OK"', response.text)
-    # def testNavigateToLevel(self):
-    #     response = requests.get(prefix + 'rootsubject')
-    #     self.assertEqual(200, response.status_code)
-    #     responseAsDict = json.loads(response.text)
-    #     # print(responseAsDict)
-    #     self.assertIn('subject', responseAsDict)
-    #     self.assertIn('title', responseAsDict['subject'])
-    #     self.assertEqual('OM', responseAsDict['subject']['title'])
-    #     self.assertIn('description', responseAsDict['subject'])
-    #     self.assertEqual('Origin of everything', responseAsDict['subject']['description'])
-    #     # self.assertIn('subject_relations', responseAsDict['subject'])
-    #     if 'subject_relations' in responseAsDict['subject']:
-    #         subject_relations = responseAsDict['subject']['subject_relations']
-    #         getChildren(self, subject_relations)
-    #     if addToRoot: addChild(self, responseAsDict['subject'])  # each run adds a node to root
     def testSubjectRemoveallButRoot(self):
         # model = swagger_client.models.subject.Subject()  # noqa: E501
         response = requests.get(prefix + 'rootsubject')
@@ -153,8 +42,26 @@ class TestSubject(unittest.TestCase):
                     response = requests.delete(prefix + 'subject/remove/' + entry['id'] + '?deletesubtree=true')
                     self.assertIn(response.status_code, [200, 201])
                     self.assertEqual('"OK"', response.text)
+    def testWorkRemoveallButRoot(self):
+        # model = swagger_client.models.subject.Subject()  # noqa: E501
+        response = requests.get(prefix + 'rootwork')
+        self.assertEqual(200, response.status_code)
+        responseAsDict = json.loads(response.text)
+        # print(responseAsDict)
+        self.assertIn('work', responseAsDict)
+        self.assertIn('title', responseAsDict['work'])
+        self.assertEqual('all work', responseAsDict['work']['title'])
+        if 'work_relations' in responseAsDict['work']:
+            work_relations = responseAsDict['work']['work_relations']
+            for entry in work_relations:
+                if nodelete: print('from root -  child will be deleted %s'%entry['id'])
+                else:
+                    print('from root -  child is deleted %s'%entry['id'])
+                    response = requests.delete(prefix + 'work/remove/' + entry['id'] + '?deletesubtree=true')
+                    self.assertIn(response.status_code, [200, 201])
+                    self.assertEqual('"OK"', response.text)
 
-def getChildren(self, subject_relations):
+def getChildren_subject(self, subject_relations):
     for entry in subject_relations:
         # print(entry)
         self.assertIn(entry['subjecttype'],
@@ -162,7 +69,7 @@ def getChildren(self, subject_relations):
                        'DHARMA_DHARMI', 'JANYA_JANAKA', 'KAARYA_KAARANA', 'NIRUPYA_NIRUPAKA', 'ANGA', 'PRAKAARA_PRAKAARI', 'COMMON_PARENT',
                        'UDDHESHYA_VIDHEYA', 'UPAVEDA', 'UPABRAHMYA_UPABRAHMANA', 'UPANISHAD', 'VISHAYA_VISHAYI'])
         Request_Url_child = entry['_links']['self']['href']
-        if str(Request_Url_child).startswith('/v1'): Request_Url_child = prefix + Request_Url_child
+        if str(Request_Url_child).startswith('/v1'): Request_Url_child = prefix + Request_Url_child[4:]
         response = requests.get(Request_Url_child)
         # self.assertEqual(200, response.status_code)
         if response.status_code == 200:
@@ -177,7 +84,7 @@ def getChildren(self, subject_relations):
                    responseAsDict['subject']['subject_relations'][0]['subjecttype'],
                    responseAsDict['subject']['subject_relations'][0]['id']))
                 # print(responseAsDict['subject']['subject_relations'][0])
-                getChildren(self, responseAsDict['subject']['subject_relations'])
+                getChildren_subject(self, responseAsDict['subject']['subject_relations'])
                 # print('node:%s subject:%s' % (node, responseAsDict['subject']['subject_relations'][0]))
             else:
                 # leaf node
@@ -185,11 +92,11 @@ def getChildren(self, subject_relations):
                   (responseAsDict['subject']['_id'], responseAsDict['subject']['title'],
                    responseAsDict['subject']['subject_parents'][0]['id'], responseAsDict['subject']['description']))
                 # print('leaf node:%s parent:%s' % (node, responseAsDict['subject']['subject_parents'][0]['id']))
-                if addToLeaf: addChild(self, responseAsDict['subject'])  # add a child to each leaf
+                if addToLeaf: addChild_subject(self, responseAsDict['subject'])  # add a child to each leaf
 
             self.assertIn('title', responseAsDict['subject'])
             self.assertIn('subject_parents', responseAsDict['subject'])
-def addChild(self, node):
+def addChild_subject(self, node):
     relations = ['ADHAARA_ADHAARI', 'ANGA_ANGI', 'ANONYA_ASHRAYA', 'ASHRAYA_ASHREYI', 'AVAYAVI', 'DARSHANA', 'DHARMA_DHARMI', 'JANYA_JANAKA',
                            'KAARYA_KAARANA', 'NIRUPYA_NIRUPAKA', 'ANGA', 'PRAKAARA_PRAKAARI', 'COMMON_PARENT', 'UDDHESHYA_VIDHEYA', 'UPAVEDA',
                            'UPABRAHMYA_UPABRAHMANA', 'UPANISHAD', 'VISHAYA_VISHAYI']
@@ -216,6 +123,72 @@ def addChild(self, node):
     # self.assertIn('id', responseAsDict['subject']['subject_relations'][0])
     # self.assertEqual(created_id_child, responseAsDict['subject']['subject_relations'][0]['id'])
     # response = requests.delete(prefix + 'subject/remove/' + node['_id'] + '?deletesubtree=true')
+    # self.assertIn(response.status_code, [200, 201])
+    # self.assertEqual('"OK"', response.text)
+def getChildren_work(self, work_relations):
+    for entry in work_relations:
+        # print(entry)
+        self.assertIn(entry['worktype'],
+                      ['ADHAARA_ADHAARI', 'ANGA_ANGI', 'ANONYA_ASHRAYA', 'ASHRAYA_ASHREYI', 'AVAYAVI', 'CHAPTER','COMMENTARY_ON_COMMENTARY',
+                       'COMMENTARY','DARSHANA', 'DERIVED', 'DHARMA_DHARMI', 'JANYA_JANAKA', 'KAARYA_KAARANA', 'NIRUPYA_NIRUPAKA','ORIGINAL', 'ANGA',
+                       'PART_WHOLE_RELATION', 'PRAKAARA_PRAKAARI', 'REVIEW', 'SECTION', 'COMMON_PARENT','SUB_COMMENTARY', 'SUB_SECTION',
+                       'UDDHESHYA_VIDHEYA','UPAVEDA', 'UPABRAHMYA_UPABRAHMANA', 'UPANISHAD', 'VISHAYA_VISHAYI', 'VOLUME'])
+        Request_Url_child = entry['_links']['self']['href']
+        if str(Request_Url_child).startswith('/v1'): Request_Url_child = prefix + Request_Url_child[4:]
+        response = requests.get(Request_Url_child)
+        # self.assertEqual(200, response.status_code)
+        if response.status_code == 200:
+            responseAsDict = json.loads(response.text)
+            # for k,v in responseAsDict['work'].items(): print('k:%s v:%s'%(k,v))
+            node = responseAsDict['work']['_id']
+            if 'work_relations' in responseAsDict['work']:
+                # has child nodes/subtree
+                print('leaf node id:%s title:%s parent:%s\ncomponents:%s' %
+                      (responseAsDict['work']['_id'], responseAsDict['work']['title'],
+                       responseAsDict['work']['work_parents'][0]['id'],
+                       responseAsDict['work']['components']))
+                # print(responseAsDict['work']['work_relations'][0])
+                getChildren_work(self, responseAsDict['work']['work_relations'])
+                # print('node:%s work:%s' % (node, responseAsDict['work']['work_relations'][0]))
+            else:
+                # leaf node
+                print('leaf node id:%s title:%s parent:%s\ncomponents:%s' %
+                      (responseAsDict['work']['_id'], responseAsDict['work']['title'],
+                       responseAsDict['work']['work_parents'][0]['id'],
+                       responseAsDict['work']['components']))
+                # print('leaf node:%s parent:%s' % (node, responseAsDict['work']['work_parents'][0]['id']))
+                if addToLeaf: addChild_work(self, responseAsDict['work'])  # add a child to each leaf
+
+            self.assertIn('title', responseAsDict['work'])
+            self.assertIn('work_parents', responseAsDict['work'])
+def addChild_work(self, node):
+    relations = ['ADHAARA_ADHAARI', 'ANGA_ANGI', 'ANONYA_ASHRAYA', 'ASHRAYA_ASHREYI', 'AVAYAVI', 'CHAPTER','COMMENTARY_ON_COMMENTARY',
+                       'COMMENTARY','DARSHANA', 'DERIVED', 'DHARMA_DHARMI', 'JANYA_JANAKA', 'KAARYA_KAARANA', 'NIRUPYA_NIRUPAKA','ORIGINAL', 'ANGA',
+                       'PART_WHOLE_RELATION', 'PRAKAARA_PRAKAARI', 'REVIEW', 'SECTION', 'COMMON_PARENT','SUB_COMMENTARY', 'SUB_SECTION',
+                       'UDDHESHYA_VIDHEYA','UPAVEDA', 'UPABRAHMYA_UPABRAHMANA', 'UPANISHAD', 'VISHAYA_VISHAYI', 'VOLUME']
+    rel = random.choice(relations)
+    response = requests.post(prefix + 'work/add',
+                             json={'title': 'child-' + node['title'], 'description': 'child-' + node['description']},
+                             headers={'parentid': node['_id'], "relation": rel})
+    self.assertIn(response.status_code, [200, 201])
+    responseAsDict = json.loads(response.text)
+    created_id_child = responseAsDict['work']['_id']
+    print('child:',responseAsDict)
+    self.assertIn('title', responseAsDict['work'])
+    self.assertEqual('child-' + node['title'], responseAsDict['work']['title'])
+    self.assertIn('description', responseAsDict['work'])
+    self.assertEqual('child-' + node['description'], responseAsDict['work']['description'])
+    self.assertIn('id', responseAsDict['work']['work_parents'][0])
+    self.assertEqual(node['_id'], responseAsDict['work']['work_parents'][0]['id'])
+    response = requests.get(prefix + 'work/' + node['_id'])
+    self.assertIn(response.status_code, [200, 201])
+    responseAsDict = json.loads(response.text)
+    print('node after:', responseAsDict)
+    # self.assertIn('worktype', responseAsDict['work']['work_relations'][0])
+    # self.assertIn(responseAsDict['work']['work_relations'][0]['worktype'], relations)
+    # self.assertIn('id', responseAsDict['work']['work_relations'][0])
+    # self.assertEqual(created_id_child, responseAsDict['work']['work_relations'][0]['id'])
+    # response = requests.delete(prefix + 'work/remove/' + node['_id'] + '?deletesubtree=true')
     # self.assertIn(response.status_code, [200, 201])
     # self.assertEqual('"OK"', response.text)
 

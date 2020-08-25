@@ -517,12 +517,7 @@ function draw_tree(error, treeData) {
                     $('#ViewSubjectElements').hide();
                     $('#ViewPersonElements').show();
                     $("#ViewNodeId2").val(d.id);
-                    $("#ViewNodeFirst").val(d.first);
-                    $("#ViewNodeMiddle").val(d.middle);
-                    $("#ViewNodeLast").val(d.last);
-                    $("#ViewNodeInitials").val(d.initials);
-                    $("#ViewNodeNick").val(d.nick);
-                    $("#ViewNodeOther").val(d.other);
+                    $("#ViewNodePersonName").val(d.name);
                     if (d.living == "1") {
                         $("#ViewNodeLiving").prop("checked", true);
                         $("#ViewNodeDeath").hide();
@@ -536,12 +531,7 @@ function draw_tree(error, treeData) {
                     $("#ViewNodeDeath").val(d.death);
                     $("#ViewNodeBiography").val(d.biography);
                     $("#ViewNodeId2").prop('disabled', true);
-                    $("#ViewNodeFirst").prop('disabled', true);
-                    $("#ViewNodeMiddle").prop('disabled', true);
-                    $("#ViewNodeLast").prop('disabled', true);
-                    $("#ViewNodeInitials").prop('disabled', true);
-                    $("#ViewNodeNick").prop('disabled', true);
-                    $("#ViewNodeOther").prop('disabled', true);
+                    $("#ViewNodePersonName").prop('disabled', true);
                     $("#ViewNodeLiving").prop('disabled', true);
                     $("#ViewNodeBirth").prop('disabled', true);
                     $("#ViewNodeDeath").prop('disabled', true);
@@ -581,11 +571,6 @@ function draw_tree(error, treeData) {
                     $('#CreateSubjectElements').hide();
                     $('#CreatePersonElements').show();
                     $('#CreateNodeFirst').val('');
-                    $('#CreateNodeMiddle').val('');
-                    $('#CreateNodeLast').val('');
-                    $('#CreateNodeInitials').val('');
-                    $('#CreateNodeNick').val('');
-                    $('#CreateNodeOther').val('');
                     $('#CreateNodeId2').val('');
                     $('#CreateNodeLiving').prop("checked", true);
                     $('#CreateNodeBirth').val('');
@@ -614,12 +599,7 @@ function draw_tree(error, treeData) {
                     $('#RenameSubjectElements').hide();
                     $('#RenamePersonElements').show();
                     $("#RenameNodeId2").val(d.id);
-                    $("#RenameNodeFirst").val(d.first);
-                    $("#RenameNodeMiddle").val(d.middle);
-                    $("#RenameNodeLast").val(d.last);
-                    $("#RenameNodeInitials").val(d.initials);
-                    $("#RenameNodeNick").val(d.nick);
-                    $("#RenameNodeOther").val(d.other);
+                    $("#RenameNodeFirst").val(d.name);
                     $("#RenameNodeId2").prop('disabled', true);
                     if (d.living == "1") {
                         $("#RenameNodeLiving").prop("checked", true);
@@ -1296,12 +1276,8 @@ function draw_tree(error, treeData) {
             displayDoc.document.write("<head><title>" + d.name + "</title></head><body>" +
                 "<h2>Name:" + d.name + "</h2><br/>" + "<p>Description:" + d.description + "</p><body>");
         else {
-            if (typeof(d.first) == "undefined") f = "";
-            else f = d.first;
-            if (typeof(d.middle) == "undefined") m = "";
-            else m = d.middle;
-            if (typeof(d.last) == "undefined") l = "";
-            else l = d.last;
+            if (typeof(d.name) == "undefined") f = "";
+            else f = d.name;
             if (typeof(d.birth) == "undefined") birth = "birth:unknown";
             else birth = "birth:" + d.birth;
             if (typeof(d.death) == "undefined") death = "death:unknown";
@@ -1381,15 +1357,7 @@ function draw_tree(error, treeData) {
             })
             .text(function(d) {
                 // console.log(currentValue, d.id);
-                if (currentValue == "Person") {
-                    if (typeof(d.first) == "undefined") f = "";
-                    else f = d.first;
-                    if (typeof(d.middle) == "undefined") m = "";
-                    else m = d.middle;
-                    if (typeof(d.last) == "undefined") l = "";
-                    else l = d.last;
-                    return f + ' ' + m + ' ' + l;
-                } else return d.name;
+                return d.name;
             })
             .style("fill-opacity", 0)
             .on('click', showNodeAsWebPage);
@@ -1417,15 +1385,6 @@ function draw_tree(error, treeData) {
                 return d.children || d._children ? "end" : "start";
             })
             .text(function(d) {
-                if (currentValue == "Person") {
-                    if (typeof(d.first) == "undefined") f = "";
-                    else f = d.first;
-                    if (typeof(d.middle) == "undefined") m = "";
-                    else m = d.middle;
-                    if (typeof(d.last) == "undefined") l = "";
-                    else l = d.last;
-                    return f + ' ' + m + ' ' + l;
-                }
                 return d.name;
             });
 
